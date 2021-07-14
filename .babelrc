@@ -1,0 +1,13 @@
+{
+  "presets": ["@babel/preset-env", "@babel/preset-react", "@emotion/babel-preset-css-prop"],
+  "plugins": ["transform-react-jsx"],
+  "ignore": [
+    "foo.js",
+    "bar/**/*.js"
+  ],
+  "env": {
+    "production": {
+      "plugins": ["transform-react-constant-elements", "@emotion"]
+    }
+  }
+}
