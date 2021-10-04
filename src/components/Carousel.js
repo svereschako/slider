@@ -5,7 +5,7 @@ import '../index.scss';
 import Arrow from './Arrow'
 import CarouselSlide from './CarouselSlide'
 import CarouselIndicator from './CarouselIndicator'
-import {getWidth, once, touch2Mouse} from '../utils'
+import {getWidth, once, getCoordsFromEvent} from '../utils'
 
 // Carousel wrapper component
 class Carousel extends React.Component {
@@ -15,7 +15,9 @@ class Carousel extends React.Component {
     this.goToSlide = this.goToSlide.bind(this);
     this.goToPrevSlide = this.goToPrevSlide.bind(this);
     this.goToNextSlide = this.goToNextSlide.bind(this);
-    this.mouseDownHandler = this.mouseDownHandler.bind(this);      
+    this.startHandler = this.startHandler.bind(this);
+    this.endHandler = this.endHandler.bind(this);
+    this.moveHandler = this.moveHandler.bind(this);      
 
     this.state = {
       activeIndex: 0,
@@ -24,22 +26,11 @@ class Carousel extends React.Component {
       translate: 0,
       transition: 0.45,
       next: null,
-      prev: null                         
+      prev: null,
+      currentTarget: null                         
     };
   }
-
-  componentDidMount() {
-    document.addEventListener("touchstart", touch2Mouse, true);
-    document.addEventListener("touchmove", touch2Mouse, true);
-    document.addEventListener("touchend", touch2Mouse, true);    
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener("touchstart", touch2Mouse, true);
-    document.removeEventListener("touchmove", touch2Mouse, true);
-    document.removeEventListener("touchend", touch2Mouse, true);
-  }
-
+  
   goToSlide(index) {
     this.setState({
       activeIndex: index,
@@ -83,27 +74,46 @@ class Carousel extends React.Component {
     });    
   }  
 
-  mouseDownHandler(e) {
-    e.preventDefault();            
+  startHandler(e) {
+    e.preventDefault();                    
     this.setState({
-      clientX: e.clientX,
+      clientX: getCoordsFromEvent(e).clientX,
       next: once(this.goToNextSlide),
       prev: once(this.goToPrevSlide)
     });
-    let currentTarget = e.currentTarget; 
-    currentTarget.onmousemove = this.mouseMoveHandler.bind(this);    
-    document.onmouseup = e => {
-        //console.log(currentTarget);         
-        currentTarget.onmousemove = null;
-        document.onmouseup = null;
-    };            
+    if(e.touches && e.touches.length > 1) {      
+      let currentTarget = e.targetTouches[0].target;
+      if(currentTarget.className.indexOf("carousel__slide--active") ==-1){
+        while(currentTarget.className.indexOf("carousel__slide--active") ==-1)
+          currentTarget = currentTarget.parentNode;
+      }
+      this.currentTarget = currentTarget;
+      currentTarget.ontouchmove = this.moveHandler;
+      document.ontouchend = this.endHandler;
+      document.ontouchcancel = this.endHandler;
+      return;
+    }
+
+    // Add the move and end listeners
+    if (window.PointerEvent) {      
+      this.currentTarget = e.currentTarget;
+      e.currentTarget.onpointermove = this.moveHandler;
+      document.onpointerup = this.endHandler;
+      document.onpointercancel = this.endHandler;        
+      //console.log(e.target);
+    } else {
+      // Add Mouse Listeners      
+      this.currentTarget = e.currentTarget;    
+      e.currentTarget.onmousemove = this.moveHandler;
+      document.onmouseup = this.endHandler;
+    }         
   }
   
-  mouseMoveHandler(e) {    
+  moveHandler(e) {    
     //let next = once(this.goToNextSlide);
-    //let prev = once(this.goToPrevSlide);
-    if(Math.abs(e.pageX-this.state.clientX) > this.state.threshold){
-      if (e.pageX > this.state.clientX){
+    //let prev = once(this.goToPrevSlide);    
+    if(Math.abs(getCoordsFromEvent(e).pageX-this.state.clientX) > this.state.threshold){
+      if (getCoordsFromEvent(e).pageX > this.state.clientX){
         this.state.next(e);
       }             
       else 
@@ -111,9 +121,60 @@ class Carousel extends React.Component {
       }              
   }  
   
-  render() {      
+  endHandler(e) {
+    e.preventDefault();
+
+    if(e.touches && e.touches.length > 0) {      
+      this.currentTarget.ontouchmove = null;
+      document.ontouchend = null;
+      document.ontouchcancel = null;
+      return;
+    }
+    // Remove Event Listeners
+    if (window.PointerEvent) {            
+      this.currentTarget.onpointermove = null;
+      document.onpointerup = null;
+      document.onpointercancel = null;            
+      //console.log(e.target, e.currentTarget);
+    } else {
+      // Remove Mouse Listeners                 
+        this.currentTarget.onmousemove = null;        
+        document.onmouseup = null;          
+    }
+  }
+
+  render() {
+    let slides;
+    if (window.PointerEvent){
+      slides = this.props.slides.map((slide, index) =>
+        <CarouselSlide
+          key={index}
+          index={index}
+          activeIndex={this.state.activeIndex}
+          slide={slide}
+          onPointerDown={e => this.startHandler(e)}                        
+          width={getWidth()/2}                             
+        />
+      );
+    } else {
+      slides = this.props.slides.map((slide, index) =>
+        <CarouselSlide
+          key={index}
+          index={index}
+          activeIndex={this.state.activeIndex}
+          slide={slide}          
+          onMouseDown={e => this.startHandler(e)}
+          onTouchStart={e => this.startHandler(e)}                        
+          width={getWidth()/2}                             
+        />
+      );
+    }     
     return (
-      <div className="carousel">
+      <div className="carousel"
+        css={css`
+              width: ${getWidth()/2}px;
+        `}
+      >
         <Arrow direction={"left"} handleClick={e => this.goToPrevSlide(e)} />
         <div className="carousel_slides"
           css={css`
@@ -123,16 +184,7 @@ class Carousel extends React.Component {
                 display: flex;                
               `}    
         >               
-          {this.props.slides.map((slide, index) =>
-            <CarouselSlide
-              key={index}
-              index={index}
-              activeIndex={this.state.activeIndex}
-              slide={slide}
-              onMouseDown={e => this.mouseDownHandler(e)}              
-              width={getWidth()}                             
-            />
-          )}
+          {slides}
         </div>
 
         <Arrow direction={"right"} handleClick={e => this.goToNextSlide(e)} />
@@ -154,3 +206,10 @@ class Carousel extends React.Component {
 }
 
 export default Carousel
+
+
+  
+
+    
+    
+            
