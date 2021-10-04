@@ -11,23 +11,21 @@ function once(fn, context) {
     };
 }
 
-function touch2Mouse(e) {
-  var theTouch = e.changedTouches[0];
-  var mouseEv;
+function getCoordsFromEvent(evt) {
+    var coords = {};
 
-  switch(e.type)
-  {
-    case "touchstart": mouseEv="mousedown"; break;  
-    case "touchend":   mouseEv="mouseup"; break;
-    case "touchmove":  mouseEv="mousemove"; break;
-    default: return;
+    if(evt.targetTouches) {
+      // Prefer Touch Events
+      coords.clientX = evt.targetTouches[0].clientX;
+      coords.clientY = evt.targetTouches[0].clientY;
+      coords.pageX = evt.targetTouches[0].pageX;
+    } else {
+      // Either Mouse event or Pointer Event
+      coords.clientX = evt.clientX;
+      coords.clientY = evt.clientY;
+      coords.pageX = evt.pageX;
+    }
+
+    return coords;
   }
-
-  var mouseEvent = document.createEvent("MouseEvent");
-  mouseEvent.initMouseEvent(mouseEv, true, true, window, 1, theTouch.screenX, theTouch.screenY, theTouch.clientX, theTouch.clientY, false, false, false, false, 0, null);
-  theTouch.target.dispatchEvent(mouseEvent);
-
-  e.preventDefault();
-}
-
-export  {getWidth, once, touch2Mouse}
+export  {getWidth, once, getCoordsFromEvent}
