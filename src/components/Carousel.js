@@ -82,7 +82,7 @@ class Carousel extends React.Component {
       prev: once(this.goToPrevSlide)
     });
     if(e.touches && e.touches.length > 1) {      
-      let currentTarget = e.targetTouches[0].target;
+      let currentTarget = e.touches[0].target;
       if(currentTarget.className.indexOf("carousel__slide--active") ==-1){
         while(currentTarget.className.indexOf("carousel__slide--active") ==-1)
           currentTarget = currentTarget.parentNode;
