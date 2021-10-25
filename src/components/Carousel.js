@@ -39,7 +39,7 @@ class Carousel extends React.Component {
   }
 
   goToPrevSlide(e) {
-    e.preventDefault();
+   // e.preventDefault();
     let index = this.state.activeIndex;
     let { slides } = this.props;
     let slidesLength = slides.length;    
@@ -57,7 +57,7 @@ class Carousel extends React.Component {
   }
 
   goToNextSlide(e) {
-    e.preventDefault();
+    //e.preventDefault();
     let index = this.state.activeIndex;
     let { slides } = this.props;
     let slidesLength = slides.length - 1;    
@@ -74,8 +74,10 @@ class Carousel extends React.Component {
     });    
   }  
 
-  startHandler(e) {
-    e.preventDefault();                    
+  startHandler(e, prevent) {
+    if(prevent)
+      e.preventDefault();
+    
     this.setState({
       clientX: getCoordsFromEvent(e).clientX,
       next: once(this.goToNextSlide),
@@ -93,20 +95,10 @@ class Carousel extends React.Component {
       document.ontouchcancel = this.endHandler;
       return;
     }
-
-    // Add the move and end listeners
-    if (window.PointerEvent) {      
-      this.currentTarget = e.currentTarget;
-      e.currentTarget.onpointermove = this.moveHandler;
-      document.onpointerup = this.endHandler;
-      document.onpointercancel = this.endHandler;        
-      //console.log(e.target);
-    } else {
-      // Add Mouse Listeners      
+    // Add the move and end listeners 
       this.currentTarget = e.currentTarget;    
       e.currentTarget.onmousemove = this.moveHandler;
-      document.onmouseup = this.endHandler;
-    }         
+      document.onmouseup = this.endHandler;            
   }
   
   moveHandler(e) {    
@@ -121,43 +113,24 @@ class Carousel extends React.Component {
       }              
   }  
   
-  endHandler(e) {
-    e.preventDefault();
-
+  endHandler(e, prevent) {
+    if(prevent)
+      e.preventDefault();
+    
     if(e.touches && e.touches.length > 0) {      
       this.currentTarget.ontouchmove = null;
       document.ontouchend = null;
       document.ontouchcancel = null;
       return;
     }
-    // Remove Event Listeners
-    if (window.PointerEvent) {            
-      this.currentTarget.onpointermove = null;
-      document.onpointerup = null;
-      document.onpointercancel = null;            
-      //console.log(e.target, e.currentTarget);
-    } else {
-      // Remove Mouse Listeners                 
+    // Remove Event Listeners  
         this.currentTarget.onmousemove = null;        
-        document.onmouseup = null;          
-    }
+        document.onmouseup = null;     
   }
 
   render() {
-    let slides;
-    if (window.PointerEvent){
-      slides = this.props.slides.map((slide, index) =>
-        <CarouselSlide
-          key={index}
-          index={index}
-          activeIndex={this.state.activeIndex}
-          slide={slide}
-          onPointerDown={e => this.startHandler(e)}                        
-          width={getWidth()/2}                             
-        />
-      );
-    } else {
-      slides = this.props.slides.map((slide, index) =>
+    let slides;    
+      slides = this.props.slides.map((slide, index) =>    
         <CarouselSlide
           key={index}
           index={index}
@@ -167,8 +140,7 @@ class Carousel extends React.Component {
           onTouchStart={e => this.startHandler(e)}                        
           width={getWidth()/2}                             
         />
-      );
-    }     
+      );         
     return (
       <div className="carousel"
         css={css`
@@ -196,7 +168,7 @@ class Carousel extends React.Component {
               index={index}
               activeIndex={this.state.activeIndex}
               isActive={this.state.activeIndex==index} 
-              onClick={e => this.goToSlide(index)}
+              click={e => this.goToSlide(index)}
             />
           )}
         </ul>
