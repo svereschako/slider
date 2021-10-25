@@ -11,7 +11,7 @@ class CarouselIndicator extends React.Component {
               ? "carousel__indicator carousel__indicator--active"
               : "carousel__indicator"
           }
-          onClick={this.props.onClick}
+          onClick={this.props.click}
         />
       </li>
     );
