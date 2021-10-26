@@ -136,8 +136,8 @@ class Carousel extends React.Component {
           index={index}
           activeIndex={this.state.activeIndex}
           slide={slide}          
-          onMouseDown={e => this.startHandler(e)}
-          onTouchStart={e => this.startHandler(e)}                        
+          mouseDown={e => this.startHandler(e,true)}
+          touchStart={e => this.startHandler(e,false)}                        
           width={getWidth()/2}                             
         />
       );         
