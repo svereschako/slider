@@ -13,8 +13,8 @@ class CarouselSlide extends React.Component {
             ? "carousel__slide carousel__slide--active"
             : "carousel__slide"
         }
-        onMouseDown={this.props.onMouseDown}
-        onTouchStart={this.props.onTouchStart}        
+        onMouseDown={this.props.mouseDown}
+        onTouchStart={this.props.touchStart}        
         //onPointerDown={this.props.onPointerDown}         
         css={css`
               background-image: url('${this.props.slide.imgUrl}');
@@ -33,8 +33,8 @@ class CarouselSlide extends React.Component {
             ? "carousel__slide carousel__slide--active"
             : "carousel__slide"
         }
-        onMouseDown={this.props.onMouseDown}
-        onTouchStart={this.props.onTouchStart}        
+        onMouseDown={this.props.mouseDown}
+        onTouchStart={this.props.touchStart}        
         //onPointerDown={this.props.onPointerDown} 
         css={css`
               width: ${this.props.width}px;
@@ -50,8 +50,8 @@ class CarouselSlide extends React.Component {
             ? "carousel__slide carousel__slide--active"
             : "carousel__slide"
         }
-        onMouseDown={this.props.onMouseDown}
-        onTouchStart={this.props.onTouchStart}        
+        onMouseDown={this.props.mouseDown}
+        onTouchStart={this.props.touchStart}        
         //onPointerDown={this.props.onPointerDown} 
         css={css`
               width: ${this.props.width}px;
