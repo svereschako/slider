@@ -6,7 +6,7 @@ import '../index.scss';
 class CarouselSlide extends React.Component {  
   render() {
     let div;
-    if(this.props.slide.imgUrl){
+    if(this.props.slide.img){
       div = <div
         className={
           this.props.index == this.props.activeIndex
@@ -17,7 +17,7 @@ class CarouselSlide extends React.Component {
         onTouchStart={this.props.touchStart}        
         //onPointerDown={this.props.onPointerDown}         
         css={css`
-              background-image: url('${this.props.slide.imgUrl}');
+              background-image: url('${this.props.slide.img.url}');
               background-size: cover;
               background-repeat: no-repeat;
               background-position: center;
@@ -43,7 +43,7 @@ class CarouselSlide extends React.Component {
         <span className="carousel-slide__content">{this.props.slide.txt}</span>              
       </div>
     }
-    if(this.props.slide.vidUrl){
+    if(this.props.slide.video){
       div = <div
         className={
           this.props.index == this.props.activeIndex
@@ -57,7 +57,7 @@ class CarouselSlide extends React.Component {
               width: ${this.props.width}px;
         `}               
       >
-        <iframe src={this.props.slide.vidUrl} width="100%" height="100%" allow="autoplay; encrypted-media; fullscreen; picture-in-picture;" frameBorder="0">
+        <iframe src={this.props.slide.video.url} width="100%" height="100%" allow="autoplay; encrypted-media; fullscreen; picture-in-picture;" frameBorder="0">
         </iframe>             
       </div>
     }
